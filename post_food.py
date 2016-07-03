@@ -1,5 +1,5 @@
-import cv2
 import datetime
+import picamera
 import pyimgur
 import requests
 import time
@@ -10,11 +10,8 @@ IMAGE_PATH = 'food.png'
 IMGUR_CLIENT_ID = 'b933b672619f23e'
 
 #take food image
-camera = cv2.VideoCapture(0)
-time.sleep(0.1)
-return_value, image = camera.read()
-cv2.imwrite(IMAGE_PATH, image)
-del(camera)
+camera = picamera.PiCamera()
+camera.capture(IMAGE_PATH)
 
 #upload food image
 timestamp = str(datetime.datetime.now())[:19]
