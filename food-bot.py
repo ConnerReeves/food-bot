@@ -1,9 +1,12 @@
 from scapy.all import *
 import datetime
+import logging
 import picamera
 import pyimgur
 import requests
 import time
+
+logging.getLogger().setLevel(logging.INFO)
 
 DASH_BUTTON_MAC = '74:c2:46:72:b2:fc'
 FLOW_API_TOKEN = '124510b8e412d27e3397bc86696440bf' #Sandbox
@@ -14,6 +17,7 @@ IMGUR_CLIENT_ID = 'b933b672619f23e'
 def listen(pkt):
     if pkt[ARP].op == 1:
         if pkt[ARP].hwsrc == DASH_BUTTON_MAC: #food-bot button pressed
+            logging.info('button press detected')
             post_food();
 
 def post_food():
@@ -21,11 +25,13 @@ def post_food():
     camera = picamera.PiCamera()
     camera.capture(IMAGE_PATH)
     camera.close()
+    logging.info('image captured')
 
     #upload food image
     timestamp = str(datetime.datetime.now())[:19]
     im = pyimgur.Imgur(IMGUR_CLIENT_ID)
     image = im.upload_image(IMAGE_PATH, title='FoodBot ' + timestamp)
+    logging.info('image uploaded')
 
     #post message to flowdock
     payload = {
@@ -34,5 +40,7 @@ def post_food():
     }
 
     requests.post(FLOW_MESSAGE_URL, data = payload)
+    logging.info('post made')
 
+logging.info('food-bot started')
 print sniff(prn=listen, filter="arp")
